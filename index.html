@@ -161,6 +161,7 @@
         <!-- Content Area -->
         <main class="flex-1 overflow-y-auto p-4 md:p-6 bg-gray-50 relative">
             
+            <!-- Tab Pembayaran -->
             <div id="tab-pembayaran" class="tab-content block">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-6 gap-4">
                     <div>
@@ -173,6 +174,7 @@
                     </div>
                 </div>
 
+                <!-- Search Input Bar -->
                 <div class="mb-4">
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
@@ -207,6 +209,7 @@
                 </div>
             </div>
 
+            <!-- Tab Mutasi -->
             <div id="tab-mutasi" class="tab-content hidden">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
                     <div>
@@ -288,6 +291,7 @@
                 </div>
             </div>
 
+            <!-- Tab Data Anggota -->
             <div id="tab-data" class="tab-content hidden">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
                     <div>
@@ -372,6 +376,7 @@
         </main>
     </div>
 
+    <!-- Modal Sesuaikan Tarif -->
     <div id="modal-tarif" class="fixed inset-0 z-[70] hidden items-center justify-center bg-black bg-opacity-50 transition-opacity">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 transform scale-95 transition-transform duration-300" id="modal-tarif-content">
             <div class="flex justify-between items-center mb-5 border-b border-gray-100 pb-3">
@@ -404,20 +409,29 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+        // Konfigurasi Firebase Anda yang terhubung permanen ke project satriamuda-3e3ac
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'satria-muda-kas-app';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
-            apiKey: "AIzaSyDummyKeyForLocalSandboxTestingOnly99",
-            authDomain: "sandbox.firebaseapp.com",
-            projectId: "sandbox-project"
+        const firebaseConfig = {
+            apiKey: "AIzaSyAUy0c41OLpdHf7_BxLtrzDLTE07U_42kA",
+            authDomain: "satriamuda-3e3ac.firebaseapp.com",
+            projectId: "satriamuda-3e3ac",
+            storageBucket: "satriamuda-3e3ac.firebasestorage.app",
+            messagingSenderId: "430356288057",
+            appId: "1:430356288057:web:5360fa87b8e0fedd91b3e8",
+            measurementId: "G-MCFN57EPRY"
         };
 
         let app, db, auth, userId = null;
         try {
-            app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-            auth = getAuth(app);
+            if (firebaseConfig.apiKey) {
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+            } else {
+                console.warn("Firebase menggunakan konfigurasi kosong.");
+            }
         } catch (e) {
             console.error("Firebase init error:", e);
         }
@@ -620,6 +634,7 @@
                     { id: 't1', type: 'pemasukan', memberName: 'Agus Pratama', amount: 5000, date: new Date().toISOString(), receiver: 'bendahara', desc: 'Pembayaran Iuran' }
                 ];
                 renderAll();
+                showToast('Mode Offline (Hubungkan Firebase untuk penyimpanan permanen)', 'info');
                 return;
             }
 
@@ -634,7 +649,6 @@
                 console.error("Error listening members:", error);
             });
 
-            // Listen to Transactions
             const txCol = collection(db, 'artifacts', appId, 'public', 'data', 'transactions');
             onSnapshot(txCol, (snapshot) => {
                 transactions = [];
@@ -646,7 +660,6 @@
                 console.error("Error listening transactions:", error);
             });
 
-            // Listen to Settings (Tarif)
             const settingsDocRef = doc(db, 'artifacts', appId, 'public', 'settingsDoc');
             onSnapshot(settingsDocRef, (docSnap) => {
                 if (docSnap.exists()) {
@@ -864,7 +877,7 @@
                 }
             } else {
                 members.push({ id: memberId, ...newMember });
-                showToast(`Berhasil menambahkan ${newMember.name}`);
+                showToast(`Berhasil menambahkan ${newMember.name} (Offline Mode)`);
                 renderAll();
             }
 
