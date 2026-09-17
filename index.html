@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Kas Satria Muda</title>
+    <title>Satria Muda</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -41,14 +41,14 @@
         
         /* Custom Saldo Box Styles */
         .saldo-box-green {
-            background-color: rgba(236, 253, 245, 0.85); /* emerald-50 with opacity */
-            border-color: rgba(16, 185, 129, 0.3); /* emerald-500 */
-            box-shadow: 0 0 15px rgba(16, 185, 129, 0.15); /* outerglow green */
+            background-color: rgba(236, 253, 245, 0.85);
+            border-color: rgba(16, 185, 129, 0.3);
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.15);
         }
         .saldo-box-red {
-            background-color: rgba(254, 242, 242, 0.85); /* red-50 with opacity */
-            border-color: rgba(239, 68, 68, 0.3); /* red-500 */
-            box-shadow: 0 0 15px rgba(239, 68, 68, 0.15); /* outerglow red */
+            background-color: rgba(254, 242, 242, 0.85);
+            border-color: rgba(239, 68, 68, 0.3);
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.15);
         }
         html.dark .saldo-box-green {
             background-color: rgba(6, 78, 59, 0.5) !important;
@@ -62,16 +62,14 @@
 </head>
 <body class="text-gray-800 h-screen flex flex-col overflow-hidden">
 
-    <!-- Toast Notification Container -->
     <div id="toast-container" class="fixed top-5 right-5 z-[60] flex flex-col gap-2"></div>
 
-    <!-- Role Selection Screen (First Screen) -->
     <div id="role-selection-screen" class="flex-1 flex items-center justify-center bg-gradient-to-br from-green-400 to-blue-500 p-4 absolute inset-0 z-50 transition-opacity duration-300">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 text-center">
             <div class="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 text-4xl shadow-sm">
                 <i class="fas fa-wallet"></i>
             </div>
-            <h1 class="text-2xl font-bold text-gray-800 mb-2">Kas Satria Muda</h1>
+            <h1 class="text-2xl font-bold text-gray-800 mb-2">Satria Muda</h1>
             <p class="text-gray-500 text-sm mb-8">Pilih akses masuk Anda untuk melanjutkan</p>
 
             <div class="space-y-4">
@@ -87,7 +85,6 @@
         </div>
     </div>
 
-    <!-- Login Screen (Admin Only) -->
     <div id="login-screen" class="opacity-0 pointer-events-none flex-1 flex items-center justify-center bg-gradient-to-br from-green-400 to-blue-500 p-4 absolute inset-0 z-40 transition-opacity duration-300">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 relative">
             <button onclick="showRoleSelection()" class="absolute top-4 left-4 text-gray-400 hover:text-gray-600 transition">
@@ -125,7 +122,6 @@
         </div>
     </div>
 
-    <!-- Main App Layout (Hidden by default) -->
     <div id="app-screen" class="hidden flex-1 flex-col h-full w-full max-w-5xl mx-auto bg-white shadow-xl relative z-30">
         
         <!-- Header -->
@@ -135,7 +131,7 @@
                     <i class="fas fa-users"></i>
                 </div>
                 <div>
-                    <h2 class="text-xl font-bold text-gray-800 leading-tight">Kas Satria Muda</h2>
+                    <h2 class="text-xl font-bold text-gray-800 leading-tight">Satria Muda</h2>
                     <p class="text-xs text-gray-500">Masuk sebagai: <span id="current-user-display" class="font-semibold text-green-600 capitalize"></span></p>
                 </div>
             </div>
@@ -165,7 +161,6 @@
         <!-- Content Area -->
         <main class="flex-1 overflow-y-auto p-4 md:p-6 bg-gray-50 relative">
             
-            <!-- TAB 1: PEMBAYARAN -->
             <div id="tab-pembayaran" class="tab-content block">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-6 gap-4">
                     <div>
@@ -174,9 +169,16 @@
                     </div>
                     <div class="text-left sm:text-right w-full sm:w-auto">
                         <p class="text-xs text-gray-500 mb-1">Tanggal Kumpulan</p>
-                        <div class="px-3 py-1.5 bg-green-100 text-green-800 rounded font-semibold text-sm w-full sm:w-auto text-center" id="today-date-display">
-                            <!-- Date will be injected via JS -->
+                        <div class="px-3 py-1.5 bg-green-100 text-green-800 rounded font-semibold text-sm w-full sm:w-auto text-center" id="today-date-display"></div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                            <i class="fas fa-search"></i>
                         </div>
+                        <input type="text" id="search-member-input" oninput="handleSearchMember(this.value)" class="block w-full pl-10 pr-3 py-2.5 bg-white border border-gray-200 rounded-xl shadow-sm focus:ring-green-500 focus:border-green-500 text-sm transition" placeholder="Cari nama anggota untuk pembayaran...">
                     </div>
                 </div>
 
@@ -195,9 +197,7 @@
                                     <th class="px-4 py-3 text-center">Aksi Hari Ini</th>
                                 </tr>
                             </thead>
-                            <tbody id="payment-table-body" class="divide-y divide-gray-100">
-                                <!-- Dynamic Rows -->
-                            </tbody>
+                            <tbody id="payment-table-body" class="divide-y divide-gray-100"></tbody>
                         </table>
                     </div>
                     <div id="payment-empty-state" class="hidden p-8 text-center text-gray-500">
@@ -207,7 +207,6 @@
                 </div>
             </div>
 
-            <!-- TAB 2: MUTASI -->
             <div id="tab-mutasi" class="tab-content hidden">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
                     <div>
@@ -279,9 +278,7 @@
                                     <th class="px-4 py-3 text-right">Nominal</th>
                                 </tr>
                             </thead>
-                            <tbody id="mutasi-table-body" class="divide-y divide-gray-100">
-                                <!-- Dynamic Rows -->
-                            </tbody>
+                            <tbody id="mutasi-table-body" class="divide-y divide-gray-100"></tbody>
                         </table>
                     </div>
                     <div id="mutasi-empty-state" class="hidden p-8 text-center text-gray-500">
@@ -291,7 +288,6 @@
                 </div>
             </div>
 
-            <!-- TAB 3: DATA ANGGOTA -->
             <div id="tab-data" class="tab-content hidden">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
                     <div>
@@ -361,9 +357,7 @@
                                             <th class="px-4 py-3 text-center">Aksi</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="members-table-body" class="divide-y divide-gray-100">
-                                        <!-- Dynamic Rows -->
-                                    </tbody>
+                                    <tbody id="members-table-body" class="divide-y divide-gray-100"></tbody>
                                 </table>
                             </div>
                             <div id="members-empty-state" class="hidden p-8 text-center text-gray-500">
@@ -378,7 +372,6 @@
         </main>
     </div>
 
-    <!-- Modal Penyesuaian Tarif -->
     <div id="modal-tarif" class="fixed inset-0 z-[70] hidden items-center justify-center bg-black bg-opacity-50 transition-opacity">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 transform scale-95 transition-transform duration-300" id="modal-tarif-content">
             <div class="flex justify-between items-center mb-5 border-b border-gray-100 pb-3">
@@ -408,7 +401,27 @@
         </div>
     </div>
 
-    <script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'satria-muda-kas-app';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            apiKey: "AIzaSyDummyKeyForLocalSandboxTestingOnly99",
+            authDomain: "sandbox.firebaseapp.com",
+            projectId: "sandbox-project"
+        };
+
+        let app, db, auth, userId = null;
+        try {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+        } catch (e) {
+            console.error("Firebase init error:", e);
+        }
+
         // Theme Management Logic
         const themeToggleBtn = document.getElementById('btn-theme-toggle');
         const themeIcon = document.getElementById('theme-icon');
@@ -436,24 +449,14 @@
             try { localStorage.setItem('theme', isDarkMode ? 'dark' : 'light'); } catch(e) {}
         });
 
-        // State & Data Management (In-Memory Database)
-        let currentUser = null; 
-        
-        let members = [
-            { id: 'm1', name: 'Agus Pratama', status: 'bekerja', createdAt: new Date().toISOString() },
-            { id: 'm2', name: 'Dina Lestari', status: 'sekolah', createdAt: new Date().toISOString() },
-            { id: 'm3', name: 'Rudi Hartono', status: 'bekerja', createdAt: new Date().toISOString() }
-        ];
-
-        let transactions = [
-            { id: 't1', type: 'pemasukan', memberId: 'm1', memberName: 'Agus Pratama', amount: 5000, date: new Date(Date.now() - 86400000).toISOString(), receiver: 'bendahara', desc: 'Pembayaran Iuran' }, 
-            { id: 't2', type: 'pengeluaran', amount: 15000, date: new Date(Date.now() - 40000000).toISOString(), receiver: 'ketua', desc: 'Beli air mineral & snack' } 
-        ];
-
+        // State & Data Management
+        let currentUser = null;
+        let members = [];
+        let transactions = [];
         let tarifBekerja = 5000;
         let tarifSekolah = 2000;
+        let memberSearchQuery = '';
 
-        // Utility Functions
         const formatRupiah = (angka) => {
             return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
         };
@@ -470,6 +473,7 @@
 
         const showToast = (message, type = 'success') => {
             const container = document.getElementById('toast-container');
+            if (!container) return;
             const toast = document.createElement('div');
             
             const bgColor = type === 'success' ? 'bg-green-600' : (type === 'error' ? 'bg-red-500' : 'bg-blue-500');
@@ -541,7 +545,23 @@
             showToast('Berhasil keluar', 'info');
         });
 
-        const initApp = () => {
+        const initApp = async () => {
+            if (auth) {
+                try {
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                    userId = auth.currentUser?.uid || crypto.randomUUID();
+                } catch(e) {
+                    console.error("Auth fallback:", e);
+                    userId = crypto.randomUUID();
+                }
+            } else {
+                userId = crypto.randomUUID();
+            }
+
             document.getElementById('login-screen').classList.add('opacity-0', 'pointer-events-none');
             document.getElementById('role-selection-screen').classList.add('opacity-0', 'pointer-events-none');
             
@@ -571,7 +591,7 @@
                 }
             }
 
-            renderAll();
+            setupRealtimeListeners();
         };
 
         window.switchTab = (tabName) => {
@@ -590,20 +610,67 @@
             renderAll();
         };
 
+        const setupRealtimeListeners = () => {
+            if (!db) {
+                members = [
+                    { id: 'm1', name: 'Agus Pratama', status: 'bekerja' },
+                    { id: 'm2', name: 'Dina Lestari', status: 'sekolah' }
+                ];
+                transactions = [
+                    { id: 't1', type: 'pemasukan', memberName: 'Agus Pratama', amount: 5000, date: new Date().toISOString(), receiver: 'bendahara', desc: 'Pembayaran Iuran' }
+                ];
+                renderAll();
+                return;
+            }
+
+            // Listen to Members
+            const membersCol = collection(db, 'artifacts', appId, 'public', 'data', 'members');
+            onSnapshot(membersCol, (snapshot) => {
+                members = [];
+                snapshot.forEach(docSnap => {
+                    members.push({ id: docSnap.id, ...docSnap.data() });
+                });
+                renderAll();
+            }, (error) => {
+                console.error("Error listening members:", error);
+            });
+
+            // Listen to Transactions
+            const txCol = collection(db, 'artifacts', appId, 'public', 'data', 'transactions');
+            onSnapshot(txCol, (snapshot) => {
+                transactions = [];
+                snapshot.forEach(docSnap => {
+                    transactions.push({ id: docSnap.id, ...docSnap.data() });
+                });
+                renderAll();
+            }, (error) => {
+                console.error("Error listening transactions:", error);
+            });
+
+            // Listen to Settings (Tarif) - fixed even number of segments (doc inside a collection)
+            const settingsDocRef = doc(db, 'artifacts', appId, 'public', 'settingsDoc');
+            onSnapshot(settingsDocRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    if (data.tarifBekerja) tarifBekerja = data.tarifBekerja;
+                    if (data.tarifSekolah) tarifSekolah = data.tarifSekolah;
+                    renderAll();
+                }
+            }, (error) => {
+                console.error("Error listening settings:", error);
+            });
+        };
+
         const updateFormSelectLabels = () => {
             const optBekerja = document.querySelector('#member-status option[value="bekerja"]');
             const optSekolah = document.querySelector('#member-status option[value="sekolah"]');
             
-            if (optBekerja) {
-                optBekerja.textContent = `Sudah Bekerja (${formatRupiah(tarifBekerja)})`;
-            }
-            if (optSekolah) {
-                optSekolah.textContent = `Masih Sekolah (${formatRupiah(tarifSekolah)})`;
-            }
+            if (optBekerja) optBekerja.textContent = `Sudah Bekerja (${formatRupiah(tarifBekerja)})`;
+            if (optSekolah) optSekolah.textContent = `Masih Sekolah (${formatRupiah(tarifSekolah)})`;
         };
 
         const renderAll = () => {
-            if(currentUser.role !== 'anggota') {
+            if(currentUser && currentUser.role !== 'anggota') {
                 renderMembersData();
                 renderPaymentList();
                 updateFormSelectLabels();
@@ -615,6 +682,7 @@
             const tbody = document.getElementById('members-table-body');
             const emptyState = document.getElementById('members-empty-state');
             const badge = document.getElementById('total-members-badge');
+            if(!tbody) return;
             
             tbody.innerHTML = '';
             badge.textContent = `${members.length} Orang`;
@@ -648,6 +716,7 @@
             const tbody = document.getElementById('payment-table-body');
             const emptyState = document.getElementById('payment-empty-state');
             const badgeTarif = document.getElementById('badge-tarif-info');
+            if(!tbody) return;
             tbody.innerHTML = '';
 
             if (badgeTarif) {
@@ -658,15 +727,23 @@
                 emptyState.classList.remove('hidden');
                 return;
             }
-            emptyState.classList.add('hidden');
 
             const today = getTodayString();
+            const filteredMembers = members.filter(m => m.name.toLowerCase().includes(memberSearchQuery.toLowerCase()));
 
-            members.forEach(member => {
+            if (filteredMembers.length === 0) {
+                emptyState.classList.remove('hidden');
+                emptyState.innerHTML = `<i class="fas fa-search text-4xl mb-3 text-gray-300"></i><p>Nama anggota tidak ditemukan.</p>`;
+                return;
+            }
+            emptyState.classList.add('hidden');
+            emptyState.innerHTML = `<i class="fas fa-inbox text-4xl mb-3 text-gray-300"></i><p>Belum ada data anggota. Minta Ketua untuk menambahkan data di Tab Data Anggota.</p>`;
+
+            filteredMembers.forEach(member => {
                 const tr = document.createElement('tr');
                 const tarif = member.status === 'bekerja' ? tarifBekerja : tarifSekolah;
                 
-                const hasPaidToday = transactions.some(t => t.type === 'pemasukan' && t.memberId === member.id && t.date.startsWith(today));
+                const hasPaidToday = transactions.some(t => t.type === 'pemasukan' && t.memberId === member.id && t.date && t.date.startsWith(today));
 
                 let actionButton = '';
                 if (hasPaidToday) {
@@ -691,12 +768,18 @@
             });
         };
 
+        window.handleSearchMember = (query) => {
+            memberSearchQuery = query;
+            renderPaymentList();
+        };
+
         const renderMutasiList = () => {
             const tbody = document.getElementById('mutasi-table-body');
             const emptyState = document.getElementById('mutasi-empty-state');
             const totalSaldoEl = document.getElementById('total-saldo');
             const totalSaldoContainer = document.getElementById('total-saldo-container');
             const totalSaldoLabel = document.getElementById('total-saldo-label');
+            if(!tbody) return;
             
             tbody.innerHTML = '';
             let total = 0;
@@ -704,7 +787,6 @@
             if (transactions.length === 0) {
                 emptyState.classList.remove('hidden');
                 totalSaldoEl.textContent = formatRupiah(0);
-                
                 totalSaldoContainer.className = "border px-6 py-4 rounded-xl text-right w-full sm:w-auto flex justify-between sm:block items-center transition-all duration-300 saldo-box-green";
                 totalSaldoLabel.className = "text-sm font-semibold mb-1 text-green-700";
                 totalSaldoEl.className = "text-3xl font-extrabold tracking-tight text-green-600";
@@ -712,7 +794,7 @@
             }
             emptyState.classList.add('hidden');
 
-            const sortedTransactions = [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date));
+            const sortedTransactions = [...transactions].sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
 
             sortedTransactions.forEach(t => {
                 const tr = document.createElement('tr');
@@ -721,11 +803,11 @@
                 let typeBadge = '';
 
                 if (t.type === 'pemasukan') {
-                    total += t.amount;
+                    total += Number(t.amount || 0);
                     nominalHtml = `<td class="px-4 py-3 text-right font-bold text-green-600">+${formatRupiah(t.amount)}</td>`;
                     typeBadge = `<span class="bg-green-100 text-green-700 text-[10px] px-1.5 py-0.5 rounded mr-1">Pemasukan</span>`;
                 } else {
-                    total -= t.amount;
+                    total -= Number(t.amount || 0);
                     nominalHtml = `<td class="px-4 py-3 text-right font-bold text-red-500">-${formatRupiah(t.amount)}</td>`;
                     typeBadge = `<span class="bg-red-100 text-red-700 text-[10px] px-1.5 py-0.5 rounded mr-1">Pengeluaran</span>`;
                 }
@@ -734,12 +816,12 @@
                 const ketSub = t.type === 'pemasukan' ? (t.memberName ? 'Iuran' : 'Lainnya') : 'Kas Keluar';
 
                 tr.innerHTML = `
-                    <td class="px-4 py-3 text-xs text-gray-500 whitespace-nowrap">${formatDate(t.date)}</td>
+                    <td class="px-4 py-3 text-xs text-gray-500 whitespace-nowrap">${formatDate(t.date || new Date().toISOString())}</td>
                     <td class="px-4 py-3">
                         <div class="font-medium text-gray-800 text-sm">${ketText}</div>
                         <div class="mt-0.5">${typeBadge} <span class="text-[11px] text-gray-400">${ketSub}</span></div>
                     </td>
-                    <td class="px-4 py-3 text-xs capitalize text-gray-600"><i class="fas fa-user-circle mr-1"></i> ${t.receiver}</td>
+                    <td class="px-4 py-3 text-xs capitalize text-gray-600"><i class="fas fa-user-circle mr-1"></i> ${t.receiver || 'Admin'}</td>
                     ${nominalHtml}
                 `;
                 tbody.appendChild(tr);
@@ -758,48 +840,68 @@
             totalSaldoEl.textContent = formatRupiah(total);
         };
 
-        document.getElementById('form-add-member').addEventListener('submit', (e) => {
+        // Actions & Cloud Saving
+        document.getElementById('form-add-member').addEventListener('submit', async (e) => {
             e.preventDefault();
-            if(currentUser.role === 'anggota') return;
+            if(currentUser && currentUser.role === 'anggota') return;
 
             const nameInput = document.getElementById('member-name');
             const statusInput = document.getElementById('member-status');
             
+            const memberId = 'm_' + Date.now();
             const newMember = {
-                id: 'm' + Date.now(),
                 name: nameInput.value.trim(),
                 status: statusInput.value,
                 createdAt: new Date().toISOString()
             };
 
-            members.push(newMember);
+            if (db) {
+                try {
+                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'members', memberId), newMember);
+                    showToast(`Berhasil menambahkan ${newMember.name}`);
+                } catch (err) {
+                    console.error("Error saving member:", err);
+                    showToast('Gagal menyimpan ke cloud', 'error');
+                }
+            } else {
+                members.push({ id: memberId, ...newMember });
+                showToast(`Berhasil menambahkan ${newMember.name}`);
+                renderAll();
+            }
+
             nameInput.value = '';
             statusInput.value = 'bekerja';
-            
-            showToast(`Berhasil menambahkan ${newMember.name}`);
-            renderAll();
         });
 
-        window.deleteMember = (id) => {
-            if(currentUser.role === 'anggota') return;
-            const index = members.findIndex(m => m.id === id);
-            if(index !== -1) {
-                const name = members[index].name;
-                members.splice(index, 1);
-                showToast(`Data ${name} berhasil dihapus`, 'info');
+        window.deleteMember = async (id) => {
+            if(currentUser && currentUser.role === 'anggota') return;
+            const member = members.find(m => m.id === id);
+            if (!member) return;
+
+            if (db) {
+                try {
+                    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'members', id));
+                    showToast(`Data ${member.name} berhasil dihapus`, 'info');
+                } catch (err) {
+                    console.error("Error deleting member:", err);
+                    showToast('Gagal menghapus data', 'error');
+                }
+            } else {
+                members = members.filter(m => m.id !== id);
+                showToast(`Data ${member.name} berhasil dihapus`, 'info');
                 renderAll();
             }
         };
 
-        window.processPayment = (memberId) => {
-            if(currentUser.role === 'anggota') return;
+        window.processPayment = async (memberId) => {
+            if(currentUser && currentUser.role === 'anggota') return;
             const member = members.find(m => m.id === memberId);
             if(!member) return;
 
             const amount = member.status === 'bekerja' ? tarifBekerja : tarifSekolah;
+            const txId = 't_' + Date.now();
             
-            transactions.push({
-                id: 't' + Date.now(),
+            const newTx = {
                 type: 'pemasukan',
                 memberId: member.id,
                 memberName: member.name,
@@ -807,10 +909,21 @@
                 date: new Date().toISOString(),
                 receiver: currentUser.username,
                 desc: 'Pembayaran Iuran'
-            });
-            
-            showToast(`Pembayaran dari ${member.name} diterima!`, 'success');
-            renderAll();
+            };
+
+            if (db) {
+                try {
+                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'transactions', txId), newTx);
+                    showToast(`Pembayaran dari ${member.name} diterima!`, 'success');
+                } catch (err) {
+                    console.error("Error saving payment:", err);
+                    showToast('Gagal mencatat pembayaran', 'error');
+                }
+            } else {
+                transactions.push({ id: txId, ...newTx });
+                showToast(`Pembayaran dari ${member.name} diterima!`, 'success');
+                renderAll();
+            }
         };
 
         window.togglePemasukanForm = () => {
@@ -827,54 +940,76 @@
             formPeng.classList.toggle('hidden');
         };
 
-        document.getElementById('form-pemasukan').addEventListener('submit', (e) => {
+        document.getElementById('form-pemasukan').addEventListener('submit', async (e) => {
             e.preventDefault();
-            if(currentUser.role === 'anggota') return;
+            if(currentUser && currentUser.role === 'anggota') return;
 
             const ketInput = document.getElementById('pemasukan-ket');
             const nomInput = document.getElementById('pemasukan-nominal');
             const amount = parseInt(nomInput.value);
+            const txId = 'tp_' + Date.now();
 
-            transactions.push({
-                id: 'tp' + Date.now(),
+            const newTx = {
                 type: 'pemasukan',
                 amount: amount,
                 date: new Date().toISOString(),
                 receiver: currentUser.username,
                 desc: ketInput.value.trim()
-            });
+            };
+
+            if (db) {
+                try {
+                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'transactions', txId), newTx);
+                    showToast('Pemasukan berhasil dicatat', 'success');
+                } catch(err) {
+                    console.error("Error saving income:", err);
+                    showToast('Gagal menyimpan pemasukan', 'error');
+                }
+            } else {
+                transactions.push({ id: txId, ...newTx });
+                showToast('Pemasukan berhasil dicatat', 'success');
+                renderAll();
+            }
 
             ketInput.value = '';
             nomInput.value = '';
             togglePemasukanForm();
-            
-            showToast('Pemasukan berhasil dicatat', 'success');
-            renderAll();
         });
 
-        document.getElementById('form-pengeluaran').addEventListener('submit', (e) => {
+        document.getElementById('form-pengeluaran').addEventListener('submit', async (e) => {
             e.preventDefault();
-            if(currentUser.role === 'anggota') return;
+            if(currentUser && currentUser.role === 'anggota') return;
 
             const ketInput = document.getElementById('pengeluaran-ket');
             const nomInput = document.getElementById('pengeluaran-nominal');
             const amount = parseInt(nomInput.value);
+            const txId = 'te_' + Date.now();
 
-            transactions.push({
-                id: 'te' + Date.now(),
+            const newTx = {
                 type: 'pengeluaran',
                 amount: amount,
                 date: new Date().toISOString(),
                 receiver: currentUser.username,
                 desc: ketInput.value.trim()
-            });
+            };
+
+            if (db) {
+                try {
+                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'transactions', txId), newTx);
+                    showToast('Pengeluaran berhasil dicatat', 'success');
+                } catch(err) {
+                    console.error("Error saving expense:", err);
+                    showToast('Gagal menyimpan pengeluaran', 'error');
+                }
+            } else {
+                transactions.push({ id: txId, ...newTx });
+                showToast('Pengeluaran berhasil dicatat', 'success');
+                renderAll();
+            }
 
             ketInput.value = '';
             nomInput.value = '';
             togglePengeluaranForm();
-            
-            showToast('Pengeluaran berhasil dicatat', 'success');
-            renderAll();
         });
 
         window.openTarifModal = () => {
@@ -903,9 +1038,9 @@
             }, 300);
         };
 
-        document.getElementById('form-tarif').addEventListener('submit', (e) => {
+        document.getElementById('form-tarif').addEventListener('submit', async (e) => {
             e.preventDefault();
-            if(currentUser.role === 'anggota') return;
+            if(currentUser && currentUser.role === 'anggota') return;
 
             const valBekerja = parseInt(document.getElementById('input-tarif-bekerja').value);
             const valSekolah = parseInt(document.getElementById('input-tarif-sekolah').value);
@@ -918,6 +1053,17 @@
 
             tarifBekerja = valBekerja;
             tarifSekolah = valSekolah;
+
+            if (db) {
+                try {
+                    await setDoc(doc(db, 'artifacts', appId, 'public', 'settingsDoc'), {
+                        tarifBekerja: valBekerja,
+                        tarifSekolah: valSekolah
+                    });
+                } catch (err) {
+                    console.error("Error saving settings:", err);
+                }
+            }
 
             closeTarifModal();
             showToast('Tarif pembayaran berhasil disesuaikan', 'success');
@@ -942,20 +1088,20 @@
         };
 
         window.handleFileUpload = (event) => {
-            if(currentUser.role === 'anggota') return;
+            if(currentUser && currentUser.role === 'anggota') return;
             const file = event.target.files[0];
             if (!file) return;
 
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = async function(e) {
                 const text = e.target.result;
-                processCSV(text);
+                await processCSV(text);
                 event.target.value = '';
             };
             reader.readAsText(file);
         };
 
-        const processCSV = (csvText) => {
+        const processCSV = async (csvText) => {
             const lines = csvText.split(/\r\n|\n/);
             let addedCount = 0;
             
@@ -973,12 +1119,18 @@
                     }
 
                     if (name) {
-                        members.push({
-                            id: 'm_csv_' + Date.now() + i,
-                            name: name,
-                            status: status,
-                            createdAt: new Date().toISOString()
-                        });
+                        const mId = 'm_csv_' + Date.now() + '_' + i;
+                        const memberData = { name, status, createdAt: new Date().toISOString() };
+                        
+                        if (db) {
+                            try {
+                                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'members', mId), memberData);
+                            } catch(err) {
+                                console.error("CSV row error:", err);
+                            }
+                        } else {
+                            members.push({ id: mId, ...memberData });
+                        }
                         addedCount++;
                     }
                 }
@@ -986,13 +1138,11 @@
             
             if (addedCount > 0) {
                 showToast(`Berhasil menambahkan ${addedCount} anggota!`, 'success');
-                renderAll();
                 switchTab('pembayaran');
             } else {
                 showToast('Gagal! Format salah atau data kosong.', 'error');
             }
         };
-
     </script>
 </body>
 </html>
