@@ -623,7 +623,6 @@
                 return;
             }
 
-            // Listen to Members
             const membersCol = collection(db, 'artifacts', appId, 'public', 'data', 'members');
             onSnapshot(membersCol, (snapshot) => {
                 members = [];
@@ -647,7 +646,7 @@
                 console.error("Error listening transactions:", error);
             });
 
-            // Listen to Settings (Tarif) - fixed even number of segments (doc inside a collection)
+            // Listen to Settings (Tarif)
             const settingsDocRef = doc(db, 'artifacts', appId, 'public', 'settingsDoc');
             onSnapshot(settingsDocRef, (docSnap) => {
                 if (docSnap.exists()) {
