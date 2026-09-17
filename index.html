@@ -411,7 +411,7 @@
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Konfigurasi Firebase Anda yang terhubung permanen ke project satriamuda-3e3ac
+        // Konfigurasi Firebase Anda (Project: satriamuda-3e3ac)
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'satria-muda-kas-app';
         const firebaseConfig = {
             apiKey: "AIzaSyAUy0c41OLpdHf7_BxLtrzDLTE07U_42kA",
@@ -419,19 +419,14 @@
             projectId: "satriamuda-3e3ac",
             storageBucket: "satriamuda-3e3ac.firebasestorage.app",
             messagingSenderId: "430356288057",
-            appId: "1:430356288057:web:5360fa87b8e0fedd91b3e8",
-            measurementId: "G-MCFN57EPRY"
+            appId: "1:430356288057:web:5360fa87b8e0fedd91b3e8"
         };
 
         let app, db, auth, userId = null;
         try {
-            if (firebaseConfig.apiKey) {
-                app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
-            } else {
-                console.warn("Firebase menggunakan konfigurasi kosong.");
-            }
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
         } catch (e) {
             console.error("Firebase init error:", e);
         }
@@ -501,7 +496,7 @@
                 toast.classList.remove('toast-enter');
                 toast.classList.add('toast-exit');
                 setTimeout(() => { if (container.contains(toast)) container.removeChild(toast); }, 300);
-            }, 3000);
+            }, 3500);
         };
 
         // Authentication & Screen Navigation
@@ -569,7 +564,7 @@
                     }
                     userId = auth.currentUser?.uid || crypto.randomUUID();
                 } catch(e) {
-                    console.error("Auth fallback:", e);
+                    console.warn("Auth warning:", e);
                     userId = crypto.randomUUID();
                 }
             } else {
@@ -626,15 +621,7 @@
 
         const setupRealtimeListeners = () => {
             if (!db) {
-                members = [
-                    { id: 'm1', name: 'Agus Pratama', status: 'bekerja' },
-                    { id: 'm2', name: 'Dina Lestari', status: 'sekolah' }
-                ];
-                transactions = [
-                    { id: 't1', type: 'pemasukan', memberName: 'Agus Pratama', amount: 5000, date: new Date().toISOString(), receiver: 'bendahara', desc: 'Pembayaran Iuran' }
-                ];
-                renderAll();
-                showToast('Mode Offline (Hubungkan Firebase untuk penyimpanan permanen)', 'info');
+                showToast('Database belum terhubung', 'error');
                 return;
             }
 
@@ -646,7 +633,8 @@
                 });
                 renderAll();
             }, (error) => {
-                console.error("Error listening members:", error);
+                console.error("Firestore Error Members:", error);
+                showToast("Gagal memuat anggota: Cek Firestore Rules!", "error");
             });
 
             const txCol = collection(db, 'artifacts', appId, 'public', 'data', 'transactions');
@@ -657,7 +645,8 @@
                 });
                 renderAll();
             }, (error) => {
-                console.error("Error listening transactions:", error);
+                console.error("Firestore Error Transactions:", error);
+                showToast("Gagal memuat mutasi: Cek Firestore Rules!", "error");
             });
 
             const settingsDocRef = doc(db, 'artifacts', appId, 'public', 'settingsDoc');
@@ -669,7 +658,7 @@
                     renderAll();
                 }
             }, (error) => {
-                console.error("Error listening settings:", error);
+                console.error("Firestore Error Settings:", error);
             });
         };
 
@@ -873,12 +862,8 @@
                     showToast(`Berhasil menambahkan ${newMember.name}`);
                 } catch (err) {
                     console.error("Error saving member:", err);
-                    showToast('Gagal menyimpan ke cloud', 'error');
+                    showToast('Gagal menyimpan ke cloud: Cek Rules', 'error');
                 }
-            } else {
-                members.push({ id: memberId, ...newMember });
-                showToast(`Berhasil menambahkan ${newMember.name} (Offline Mode)`);
-                renderAll();
             }
 
             nameInput.value = '';
@@ -898,10 +883,6 @@
                     console.error("Error deleting member:", err);
                     showToast('Gagal menghapus data', 'error');
                 }
-            } else {
-                members = members.filter(m => m.id !== id);
-                showToast(`Data ${member.name} berhasil dihapus`, 'info');
-                renderAll();
             }
         };
 
@@ -931,10 +912,6 @@
                     console.error("Error saving payment:", err);
                     showToast('Gagal mencatat pembayaran', 'error');
                 }
-            } else {
-                transactions.push({ id: txId, ...newTx });
-                showToast(`Pembayaran dari ${member.name} diterima!`, 'success');
-                renderAll();
             }
         };
 
@@ -977,10 +954,6 @@
                     console.error("Error saving income:", err);
                     showToast('Gagal menyimpan pemasukan', 'error');
                 }
-            } else {
-                transactions.push({ id: txId, ...newTx });
-                showToast('Pemasukan berhasil dicatat', 'success');
-                renderAll();
             }
 
             ketInput.value = '';
@@ -1013,10 +986,6 @@
                     console.error("Error saving expense:", err);
                     showToast('Gagal menyimpan pengeluaran', 'error');
                 }
-            } else {
-                transactions.push({ id: txId, ...newTx });
-                showToast('Pengeluaran berhasil dicatat', 'success');
-                renderAll();
             }
 
             ketInput.value = '';
@@ -1140,8 +1109,6 @@
                             } catch(err) {
                                 console.error("CSV row error:", err);
                             }
-                        } else {
-                            members.push({ id: mId, ...memberData });
                         }
                         addedCount++;
                     }
