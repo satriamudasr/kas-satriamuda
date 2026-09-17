@@ -165,12 +165,12 @@
             <div id="tab-pembayaran" class="tab-content block">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-6 gap-4">
                     <div>
-                        <h3 class="text-lg font-bold text-gray-800">Pembayaran Kumpulan</h3>
-                        <p class="text-sm text-gray-500">Tandai anggota yang membayar pada hari ini.</p>
+                        <h3 class="text-lg font-bold text-gray-800">Pembayaran Iuran Bulanan</h3>
+                        <p class="text-sm text-gray-500">Tandai anggota yang membayar untuk bulan ini (otomatis mereset saat bulan berganti).</p>
                     </div>
                     <div class="text-left sm:text-right w-full sm:w-auto">
-                        <p class="text-xs text-gray-500 mb-1">Tanggal Kumpulan</p>
-                        <div class="px-3 py-1.5 bg-green-100 text-green-800 rounded font-semibold text-sm w-full sm:w-auto text-center" id="today-date-display"></div>
+                        <p class="text-xs text-gray-500 mb-1">Periode Bulan Ini</p>
+                        <div class="px-3 py-1.5 bg-green-100 text-green-800 rounded font-semibold text-sm w-full sm:w-auto text-center" id="current-month-display"></div>
                     </div>
                 </div>
 
@@ -196,7 +196,7 @@
                                     <th class="px-4 py-3">Nama Anggota</th>
                                     <th class="px-4 py-3">Status</th>
                                     <th class="px-4 py-3 text-right">Tarif</th>
-                                    <th class="px-4 py-3 text-center">Aksi Hari Ini</th>
+                                    <th class="px-4 py-3 text-center">Status Bulan Ini</th>
                                 </tr>
                             </thead>
                             <tbody id="payment-table-body" class="divide-y divide-gray-100"></tbody>
@@ -220,6 +220,18 @@
                         <p id="total-saldo-label" class="text-sm font-semibold mb-1 text-green-700">Total Saldo Kas</p>
                         <p class="text-3xl font-extrabold tracking-tight text-green-600" id="total-saldo">Rp 0</p>
                     </div>
+                </div>
+
+                <!-- Filter Bulan & Download Mutasi -->
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-4 flex flex-col sm:flex-row justify-between items-center gap-3">
+                    <div class="flex items-center gap-2 w-full sm:w-auto">
+                        <label class="text-xs font-bold text-gray-600 whitespace-nowrap"><i class="fas fa-filter text-green-600 mr-1"></i> Filter Bulan:</label>
+                        <input type="month" id="filter-month-input" onchange="handleMonthFilterChange(this.value)" class="block px-3 py-1.5 border border-gray-300 rounded-lg text-sm bg-white font-medium text-gray-700">
+                        <button onclick="resetMonthFilter()" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 px-2.5 py-1.5 rounded-lg font-semibold transition">Semua</button>
+                    </div>
+                    <button onclick="downloadCurrentMonthMutasi()" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition flex items-center justify-center gap-2 shadow-sm">
+                        <i class="fas fa-file-download"></i> Download Mutasi Bulan Ini
+                    </button>
                 </div>
 
                 <!-- Admin Action: Tambah Pemasukan & Pengeluaran -->
@@ -286,7 +298,7 @@
                     </div>
                     <div id="mutasi-empty-state" class="hidden p-8 text-center text-gray-500">
                         <i class="fas fa-history text-4xl mb-3 text-gray-300"></i>
-                        <p>Belum ada transaksi tercatat.</p>
+                        <p>Belum ada transaksi tercatat pada periode ini.</p>
                     </div>
                 </div>
             </div>
@@ -465,6 +477,7 @@
         let tarifBekerja = 5000;
         let tarifSekolah = 2000;
         let memberSearchQuery = '';
+        let mutasiSelectedMonth = ''; // Format: YYYY-MM (kosong berarti semua bulan)
 
         const formatRupiah = (angka) => {
             return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
@@ -475,9 +488,11 @@
             return date.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
         };
 
-        const getTodayString = () => {
-            const tzoffset = (new Date()).getTimezoneOffset() * 60000; 
-            return (new Date(Date.now() - tzoffset)).toISOString().split('T')[0];
+        const getCurrentYearMonth = () => {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            return `${year}-${month}`;
         };
 
         const showToast = (message, type = 'success') => {
@@ -578,7 +593,9 @@
             document.getElementById('app-screen').classList.add('flex');
 
             document.getElementById('current-user-display').textContent = currentUser.role;
-            document.getElementById('today-date-display').textContent = new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+            
+            const currentMonthName = new Date().toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+            document.getElementById('current-month-display').textContent = currentMonthName;
             
             const isAnggota = currentUser.role === 'anggota';
             
@@ -594,7 +611,7 @@
                 switchTab('pembayaran');
                 
                 if(currentUser.role === 'bendahara') {
-                    document.getElementById('data-role-warning').classList.remove('hidden');
+                    document.getElementById('data-role-warning').classList.add('hidden');
                 } else {
                     document.getElementById('data-role-warning').classList.add('hidden');
                 }
@@ -729,7 +746,7 @@
                 return;
             }
 
-            const today = getTodayString();
+            const currentMonthStr = getCurrentYearMonth(); // YYYY-MM untuk reset otomatis tiap bulan
             const filteredMembers = members.filter(m => m.name.toLowerCase().includes(memberSearchQuery.toLowerCase()));
 
             if (filteredMembers.length === 0) {
@@ -744,12 +761,13 @@
                 const tr = document.createElement('tr');
                 const tarif = member.status === 'bekerja' ? tarifBekerja : tarifSekolah;
                 
-                const hasPaidToday = transactions.some(t => t.type === 'pemasukan' && t.memberId === member.id && t.date && t.date.startsWith(today));
+                // Cek apakah sudah membayar di bulan berjalan (YYYY-MM)
+                const hasPaidThisMonth = transactions.some(t => t.type === 'pemasukan' && t.memberId === member.id && t.date && t.date.startsWith(currentMonthStr));
 
                 let actionButton = '';
-                if (hasPaidToday) {
+                if (hasPaidThisMonth) {
                     actionButton = `<button disabled class="bg-gray-100 text-gray-400 cursor-not-allowed px-3 py-1.5 rounded-md text-xs font-bold w-full border border-gray-200">
-                                        <i class="fas fa-check mr-1"></i> Lunas
+                                        <i class="fas fa-check mr-1"></i> Lunas Bulan Ini
                                     </button>`;
                 } else {
                     actionButton = `<button onclick="processPayment('${member.id}')" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1.5 rounded-md text-xs font-bold w-full transition shadow-sm">
@@ -763,7 +781,7 @@
                     <td class="px-4 py-3 font-medium text-gray-800">${member.name}</td>
                     <td class="px-4 py-3 text-xs text-gray-500 capitalize">${statusLabel}</td>
                     <td class="px-4 py-3 text-right font-medium text-gray-700">${formatRupiah(tarif)}</td>
-                    <td class="px-4 py-3 text-center w-32 sm:w-40">${actionButton}</td>
+                    <td class="px-4 py-3 text-center w-36 sm:w-44">${actionButton}</td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -772,6 +790,18 @@
         window.handleSearchMember = (query) => {
             memberSearchQuery = query;
             renderPaymentList();
+        };
+
+        window.handleMonthFilterChange = (val) => {
+            mutasiSelectedMonth = val;
+            renderMutasiList();
+        };
+
+        window.resetMonthFilter = () => {
+            mutasiSelectedMonth = '';
+            const filterInput = document.getElementById('filter-month-input');
+            if (filterInput) filterInput.value = '';
+            renderMutasiList();
         };
 
         const renderMutasiList = () => {
@@ -785,17 +815,35 @@
             tbody.innerHTML = '';
             let total = 0;
 
-            if (transactions.length === 0) {
+            // Hitung total keseluruhan saldo dari seluruh transaksi tanpa filter
+            transactions.forEach(t => {
+                if (t.type === 'pemasukan') total += Number(t.amount || 0);
+                else total -= Number(t.amount || 0);
+            });
+
+            // Filter transaksi berdasarkan bulan jika dipilih
+            let displayedTransactions = [...transactions];
+            if (mutasiSelectedMonth) {
+                displayedTransactions = displayedTransactions.filter(t => t.date && t.date.startsWith(mutasiSelectedMonth));
+            }
+
+            const sortedTransactions = displayedTransactions.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+
+            if (sortedTransactions.length === 0) {
                 emptyState.classList.remove('hidden');
-                totalSaldoEl.textContent = formatRupiah(0);
-                totalSaldoContainer.className = "border px-6 py-4 rounded-xl text-right w-full sm:w-auto flex justify-between sm:block items-center transition-all duration-300 saldo-box-green";
-                totalSaldoLabel.className = "text-sm font-semibold mb-1 text-green-700";
-                totalSaldoEl.className = "text-3xl font-extrabold tracking-tight text-green-600";
+                totalSaldoEl.textContent = formatRupiah(total);
+                if (total >= 0) {
+                    totalSaldoContainer.className = "border px-6 py-4 rounded-xl text-right w-full sm:w-auto flex justify-between sm:block items-center transition-all duration-300 saldo-box-green";
+                    totalSaldoLabel.className = "text-sm font-semibold mb-1 text-green-700";
+                    totalSaldoEl.className = "text-3xl font-extrabold tracking-tight text-green-600";
+                } else {
+                    totalSaldoContainer.className = "border px-6 py-4 rounded-xl text-right w-full sm:w-auto flex justify-between sm:block items-center transition-all duration-300 saldo-box-red";
+                    totalSaldoLabel.className = "text-sm font-semibold mb-1 text-red-700";
+                    totalSaldoEl.className = "text-3xl font-extrabold tracking-tight text-red-600";
+                }
                 return;
             }
             emptyState.classList.add('hidden');
-
-            const sortedTransactions = [...transactions].sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
 
             sortedTransactions.forEach(t => {
                 const tr = document.createElement('tr');
@@ -804,11 +852,9 @@
                 let typeBadge = '';
 
                 if (t.type === 'pemasukan') {
-                    total += Number(t.amount || 0);
                     nominalHtml = `<td class="px-4 py-3 text-right font-bold text-green-600">+${formatRupiah(t.amount)}</td>`;
                     typeBadge = `<span class="bg-green-100 text-green-700 text-[10px] px-1.5 py-0.5 rounded mr-1">Pemasukan</span>`;
                 } else {
-                    total -= Number(t.amount || 0);
                     nominalHtml = `<td class="px-4 py-3 text-right font-bold text-red-500">-${formatRupiah(t.amount)}</td>`;
                     typeBadge = `<span class="bg-red-100 text-red-700 text-[10px] px-1.5 py-0.5 rounded mr-1">Pengeluaran</span>`;
                 }
@@ -839,6 +885,43 @@
             }
 
             totalSaldoEl.textContent = formatRupiah(total);
+        };
+
+        window.downloadCurrentMonthMutasi = () => {
+            let activeMonth = mutasiSelectedMonth;
+            if (!activeMonth) {
+                activeMonth = getCurrentYearMonth();
+            }
+
+            const monthTransactions = transactions.filter(t => t.date && t.date.startsWith(activeMonth));
+            if (monthTransactions.length === 0) {
+                showToast(`Tidak ada transaksi pada bulan ${activeMonth}`, 'error');
+                return;
+            }
+
+            let csvContent = "Tanggal,Jenis,Keterangan,Penanggung Jawab,Nominal\n";
+            monthTransactions.forEach(t => {
+                const dateStr = new Date(t.date).toLocaleString('id-ID');
+                const typeStr = t.type.toUpperCase();
+                const ketStr = (t.type === 'pemasukan' ? (t.memberName ? `Iuran dari ${t.memberName}` : t.desc) : t.desc).replace(/,/g, ' ');
+                const adminStr = t.receiver || 'Admin';
+                const amountStr = t.amount;
+                csvContent += `"${dateStr}","${typeStr}","${ketStr}","${adminStr}",${amountStr}\n`;
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute("href", url);
+            link.setAttribute("download", `Laporan_Mutasi_Kas_SatriaMuda_${activeMonth}.csv`);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showToast(`Laporan mutasi bulan ${activeMonth} berhasil diunduh!`, 'success');
         };
 
         // Actions & Cloud Saving
